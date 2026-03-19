@@ -400,19 +400,20 @@ body {
 }
 
 /* Edit profile form */
-.profile-edit-form {
-    margin-top: 4px;
+.btn-edit-profile {
+    width: auto;              /* stops full width madness */
+    padding: 5px 10px;        /* smaller size */
+    font-size: 13px;          /* compact text */
+    border-radius: 6px;
+    background: #2a2a2a;
+    color: white;
+    cursor: pointer;
+    margin-left: auto;        /* push to right */
+    display: inline-block;
 }
 
-.edit-actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 8px;
-}
-
-.edit-actions button {
-    flex: 1;
-    margin: 0;
+.btn-edit-profile:hover {
+    background: #3a3a3a;
 }
 
 /* Two-column row for register + edit forms */
