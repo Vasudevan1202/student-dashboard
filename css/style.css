@@ -774,6 +774,12 @@ a:hover {
     gap: 8px;
 }
 
+.subject-name-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
 .subject-item-name {
     font-size: 15px;
     font-weight: 600;
