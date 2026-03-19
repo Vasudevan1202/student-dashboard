@@ -39,6 +39,36 @@
         </div>
     </div>
 
+    <!-- 📚 SUBJECTS -->
+    <div class="card">
+        <div class="card-header">
+            <div class="card-icon">📚</div>
+            <h2>Subjects</h2>
+        </div>
+
+        <!-- Add subject form -->
+        <div class="add-subject-form">
+            <input type="text"   id="subjectName"    placeholder="Subject name (e.g. Math)">
+            <input type="number" id="subjectLessons" placeholder="Total lessons" min="1">
+            <button class="btn-add-subject" onclick="addSubject()">+ Add Subject</button>
+        </div>
+
+        <!-- Subject cards rendered by JS -->
+        <div id="subjectsList"></div>
+    </div>
+
+    <!-- 📊 PROGRESS CHART -->
+    <div class="card">
+        <div class="card-header">
+            <div class="card-icon">📊</div>
+            <h2>Progress Chart</h2>
+        </div>
+        <div class="chart-container">
+            <canvas id="progressChart"></canvas>
+        </div>
+        <p class="chart-hint">Each segment shows how far you've progressed in each subject.</p>
+    </div>
+
     <!-- ✅ TASKS -->
     <div class="card">
         <div class="card-header">
@@ -68,45 +98,6 @@
         </div>
     </div>
 
-    <!-- 📅 TIMETABLE -->
-    <div class="card">
-        <div class="card-header">
-            <div class="card-icon">📅</div>
-            <h2>Timetable</h2>
-        </div>
-        <textarea id="timetable" placeholder="e.g. Mon 9am – Math, Tue 10am – Science…"></textarea>
-        <p class="timetable-note">Your schedule is saved to your account.</p>
-        <button onclick="saveTimetable()" style="margin-top:12px;">💾 Save Timetable</button>
-    </div>
-
-    <!-- 📊 PROGRESS -->
-    <div class="card">
-        <div class="card-header">
-            <div class="card-icon">📊</div>
-            <h2>Progress</h2>
-        </div>
-
-        <div class="progress-item">
-            <div class="progress-label-row">
-                <span>Math</span>
-                <span class="pct" id="mathPct">0%</span>
-            </div>
-            <progress id="mathBar" max="100" value="0"></progress>
-        </div>
-
-        <div class="progress-item">
-            <div class="progress-label-row">
-                <span>Science</span>
-                <span class="pct" id="sciencePct">0%</span>
-            </div>
-            <progress id="scienceBar" max="100" value="0"></progress>
-        </div>
-
-        <div class="chart-wrap">
-            <canvas id="progressChart"></canvas>
-        </div>
-    </div>
-
     <!-- 🔔 NOTIFICATIONS -->
     <div class="card">
         <div class="card-header">
@@ -120,21 +111,6 @@
 </div>
 
 <script type="module" src="js/app.js"></script>
-
-<!-- Live progress % labels -->
-<script>
-    // Update label text whenever progress bar values change
-    function syncPctLabels() {
-        const mathBar     = document.getElementById('mathBar');
-        const scienceBar  = document.getElementById('scienceBar');
-        const mathPct     = document.getElementById('mathPct');
-        const sciencePct  = document.getElementById('sciencePct');
-        if (mathBar && mathPct)    mathPct.textContent    = mathBar.value    + '%';
-        if (scienceBar && sciencePct) sciencePct.textContent = scienceBar.value + '%';
-    }
-    // Poll every 500ms so the labels stay in sync as Firestore updates bars
-    setInterval(syncPctLabels, 500);
-</script>
 
 </body>
 </html>

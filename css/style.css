@@ -717,6 +717,144 @@ a:hover {
 }
 
 /* ============================================================
+   SUBJECTS
+   ============================================================ */
+
+/* Add-subject form */
+.add-subject-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 18px;
+}
+
+.add-subject-form input {
+    margin: 0;
+}
+
+.btn-add-subject {
+    grid-column: 1 / -1;
+    margin: 0;
+}
+
+/* Subject list empty state */
+.empty-msg {
+    color: var(--text-faint);
+    font-size: 13px;
+    text-align: center;
+    padding: 20px 0 8px;
+    line-height: 1.5;
+}
+
+/* Individual subject item */
+.subject-item {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    margin-bottom: 12px;
+    transition: border-color var(--transition), box-shadow var(--transition);
+    animation: slideUp 0.3s ease both;
+}
+
+.subject-item:last-child {
+    margin-bottom: 0;
+}
+
+.subject-item:hover {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-dim);
+}
+
+.subject-item-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    gap: 8px;
+}
+
+.subject-item-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.subject-item-pct {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--primary);
+    background: var(--primary-dim);
+    padding: 2px 9px;
+    border-radius: 99px;
+    white-space: nowrap;
+}
+
+.subject-item-pct.done {
+    color: var(--success);
+    background: rgba(61, 214, 140, 0.12);
+}
+
+.subject-progress-row {
+    margin-bottom: 8px;
+}
+
+.subject-progress-row progress {
+    width: 100%;
+}
+
+.subject-item-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+}
+
+.badge-done {
+    color: var(--success);
+    font-weight: 600;
+    font-size: 12px;
+}
+
+/* Complete lesson button */
+.btn-complete {
+    width: 100%;
+    margin: 0;
+    padding: 9px 14px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.btn-complete:disabled,
+.btn-done {
+    background: rgba(61, 214, 140, 0.12) !important;
+    color: var(--success) !important;
+    cursor: default;
+    box-shadow: none !important;
+    transform: none !important;
+    border: 1px solid rgba(61, 214, 140, 0.25);
+}
+
+/* ============================================================
+   CHART
+   ============================================================ */
+
+.chart-container {
+    position: relative;
+    max-width: 280px;
+    margin: 0 auto 10px;
+}
+
+.chart-hint {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-faint);
+    margin-top: 4px;
+}
+
+/* ============================================================
    SCROLLBAR
    ============================================================ */
 

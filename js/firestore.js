@@ -7,9 +7,9 @@ import {
     addDoc,
     deleteDoc,
     doc,
-    setDoc,
-    getDoc,
-    onSnapshot
+    updateDoc,
+    onSnapshot,
+    increment
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 import { updateChart } from "./chart.js";
@@ -31,61 +31,26 @@ export function listenTasks() {
     const list = document.getElementById("taskList");
     if (!list) return;
 
-    // stop previous listener
     if (unsubscribeTasks) unsubscribeTasks();
 
     unsubscribeTasks = onSnapshot(
         collection(db, "users", user.uid, "tasks"),
-        async (snapshot) => {
+        (snapshot) => {
             list.innerHTML = "";
-
-            let totalTasks = snapshot.size;
 
             snapshot.forEach((docSnap) => {
                 const li = document.createElement("li");
                 li.textContent = docSnap.data().text;
 
                 li.onclick = async () => {
-                    await deleteDoc(
-                        doc(db, "users", user.uid, "tasks", docSnap.id)
-                    );
+                    li.classList.add("done");
+                    setTimeout(async () => {
+                        await deleteDoc(doc(db, "users", user.uid, "tasks", docSnap.id));
+                    }, 400);
                 };
 
                 list.appendChild(li);
             });
-
-            // =======================
-            // 📊 PROGRESS LOGIC
-            // =======================
-
-            let autoProgress = Math.min(100, Math.floor(totalTasks * 5));
-
-            // check if manual progress exists
-            const snap = await getDoc(
-                doc(db, "users", user.uid, "profile", "data")
-            );
-
-            let finalMath = autoProgress;
-            let finalScience = autoProgress;
-
-            if (snap.exists()) {
-                const manual = snap.data().progress;
-
-                if (manual) {
-                    finalMath = manual.math ?? autoProgress;
-                    finalScience = manual.science ?? autoProgress;
-                }
-            }
-
-            // update UI
-            const mathBar = document.getElementById("mathBar");
-            const scienceBar = document.getElementById("scienceBar");
-
-            if (mathBar) mathBar.value = finalMath;
-            if (scienceBar) scienceBar.value = finalScience;
-
-            // update chart
-            updateChart(finalMath, finalScience);
         },
         (error) => {
             console.error("[listenTasks] error:", error);
@@ -97,7 +62,7 @@ export function listenTasks() {
 // ➕ ADD TASK
 export async function addTask() {
     const input = document.getElementById("taskInput");
-    const user = auth.currentUser;
+    const user  = auth.currentUser;
 
     if (!user) {
         alert("Please log in to add tasks.");
@@ -108,10 +73,7 @@ export async function addTask() {
 
     await addDoc(
         collection(db, "users", user.uid, "tasks"),
-        {
-            text: input.value.trim(),
-            created: Date.now()
-        }
+        { text: input.value.trim(), created: Date.now() }
     );
 
     input.value = "";
@@ -120,119 +82,143 @@ export async function addTask() {
 
 
 // =======================
-// 📅 TIMETABLE
+// 📚 SUBJECTS
 // =======================
 
-export async function saveTimetable() {
-    const user = auth.currentUser;
-    console.log("[saveTimetable] current user:", user?.uid || "none");
+let unsubscribeSubjects = null;
 
+// ➕ ADD SUBJECT
+export async function addSubject() {
+    const user = auth.currentUser;
     if (!user) {
-        alert("You must be logged in to save your timetable.");
+        alert("Please log in to add subjects.");
         return;
     }
 
-    const timetableEl = document.getElementById("timetable");
-    if (!timetableEl) {
-        console.error("[saveTimetable] timetable element not found");
+    const nameEl    = document.getElementById("subjectName");
+    const lessonsEl = document.getElementById("subjectLessons");
+
+    const name         = nameEl?.value.trim();
+    const totalLessons = parseInt(lessonsEl?.value) || 0;
+
+    if (!name) {
+        alert("Please enter a subject name.");
         return;
     }
 
-    const data = timetableEl.value;
-    console.log("[saveTimetable] saving data:", data);
+    if (totalLessons <= 0) {
+        alert("Please enter a valid number of lessons (greater than 0).");
+        return;
+    }
+
+    console.log("[addSubject] adding:", name, totalLessons);
 
     try {
-        await setDoc(
-            doc(db, "users", user.uid, "profile", "data"),
-            { timetable: data },
-            { merge: true }
-        );
-        console.log("[saveTimetable] saved successfully ✅");
-        alert("✅ Timetable saved!");
+        await addDoc(collection(db, "users", user.uid, "subjects"), {
+            name,
+            totalLessons,
+            completedLessons: 0
+        });
+
+        nameEl.value    = "";
+        lessonsEl.value = "";
+        nameEl.focus();
+
+        console.log("[addSubject] added successfully ✅");
     } catch (err) {
-        console.error("[saveTimetable] failed:", err);
-        alert("❌ Failed to save timetable: " + err.message);
+        console.error("[addSubject] error:", err);
+        alert("Failed to add subject: " + err.message);
     }
 }
 
 
-export async function loadTimetable() {
+// ✅ MARK LESSON COMPLETE
+export async function updateLessonProgress(subjectId) {
     const user = auth.currentUser;
-    console.log("[loadTimetable] current user:", user?.uid || "none");
-
     if (!user) return;
 
-    const timetableEl = document.getElementById("timetable");
-    if (!timetableEl) return;
+    console.log("[updateLessonProgress] subjectId:", subjectId);
 
     try {
-        const snap = await getDoc(
-            doc(db, "users", user.uid, "profile", "data")
-        );
-
-        console.log("[loadTimetable] doc exists:", snap.exists());
-
-        if (snap.exists()) {
-            const saved = snap.data().timetable || "";
-            console.log("[loadTimetable] loaded value:", saved);
-            timetableEl.value = saved;
-        }
+        await updateDoc(doc(db, "users", user.uid, "subjects", subjectId), {
+            completedLessons: increment(1)
+        });
+        console.log("[updateLessonProgress] incremented ✅");
     } catch (err) {
-        console.error("[loadTimetable] error:", err);
+        console.error("[updateLessonProgress] error:", err);
+        alert("Failed to update lesson: " + err.message);
     }
 }
 
 
-// =======================
-// 📊 MANUAL PROGRESS
-// =======================
-
-export async function saveProgress() {
+// 🔄 REAL-TIME SUBJECTS LISTENER
+export function listenSubjects() {
     const user = auth.currentUser;
-    if (!user) return;
+    if (!user) {
+        console.warn("[listenSubjects] no user logged in");
+        return;
+    }
 
-    const math = document.getElementById("mathInput")?.value || 0;
-    const science = document.getElementById("scienceInput")?.value || 0;
+    if (unsubscribeSubjects) unsubscribeSubjects();
 
-    await setDoc(
-        doc(db, "users", user.uid, "profile", "data"),
-        {
-            progress: {
-                math: Number(math),
-                science: Number(science)
+    unsubscribeSubjects = onSnapshot(
+        collection(db, "users", user.uid, "subjects"),
+        (snapshot) => {
+            const container = document.getElementById("subjectsList");
+            if (!container) return;
+
+            container.innerHTML = "";
+
+            const chartLabels = [];
+            const chartValues = [];
+
+            if (snapshot.empty) {
+                container.innerHTML =
+                    '<p class="empty-msg">No subjects yet. Add one above to get started!</p>';
+                updateChart([], []);
+                return;
             }
+
+            snapshot.forEach((docSnap) => {
+                const data = docSnap.data();
+                const id   = docSnap.id;
+
+                const completed = data.completedLessons || 0;
+                const total     = data.totalLessons     || 1;
+                const pct       = Math.min(100, Math.round((completed / total) * 100));
+                const finished  = completed >= total;
+
+                chartLabels.push(data.name);
+                chartValues.push(pct);
+
+                const div = document.createElement("div");
+                div.className = "subject-item";
+                div.innerHTML = `
+                    <div class="subject-item-header">
+                        <span class="subject-item-name">${data.name}</span>
+                        <span class="subject-item-pct ${finished ? 'done' : ''}">${pct}%</span>
+                    </div>
+                    <div class="subject-progress-row">
+                        <progress value="${pct}" max="100"></progress>
+                    </div>
+                    <div class="subject-item-meta">
+                        <span>${completed} of ${total} lessons completed</span>
+                        ${finished ? '<span class="badge-done">✓ Complete</span>' : ''}
+                    </div>
+                    <button
+                        class="btn-complete ${finished ? 'btn-done' : ''}"
+                        onclick="updateLessonProgress('${id}')"
+                        ${finished ? 'disabled' : ''}>
+                        ${finished ? '🎉 All done!' : '✅ Mark Lesson Complete'}
+                    </button>
+                `;
+                container.appendChild(div);
+            });
+
+            updateChart(chartLabels, chartValues);
         },
-        { merge: true }
-    );
-}
-
-
-export async function loadProgress() {
-    const user = auth.currentUser;
-    if (!user) return;
-
-    try {
-        const snap = await getDoc(
-            doc(db, "users", user.uid, "profile", "data")
-        );
-
-        if (snap.exists()) {
-            const data = snap.data().progress;
-
-            if (data) {
-                const math = data.math || 0;
-                const science = data.science || 0;
-
-                const mathBar = document.getElementById("mathBar");
-                const scienceBar = document.getElementById("scienceBar");
-
-                if (mathBar) mathBar.value = math;
-                if (scienceBar) scienceBar.value = science;
-
-                updateChart(math, science);
-            }
+        (err) => {
+            console.error("[listenSubjects] error:", err);
         }
-    } catch (err) {
-        console.error("[loadProgress] error:", err);
-    }
+    );
 }
