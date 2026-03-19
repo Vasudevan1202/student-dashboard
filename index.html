@@ -46,14 +46,19 @@
             <h2>Subjects</h2>
         </div>
 
-        <!-- Add subject form -->
         <div class="add-subject-form">
-            <input type="text"   id="subjectName"    placeholder="Subject name (e.g. Math)">
-            <input type="number" id="subjectLessons" placeholder="Total lessons" min="1">
+            <input type="text"   id="subjectName"     placeholder="Subject name (e.g. Math)">
+            <input type="number" id="subjectLessons"  placeholder="Total lessons" min="1">
+            <div class="reminder-field">
+                <label for="subjectReminder">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                    Daily reminder
+                </label>
+                <input type="time" id="subjectReminder">
+            </div>
             <button class="btn-add-subject" onclick="addSubject()">+ Add Subject</button>
         </div>
 
-        <!-- Subject cards rendered by JS -->
         <div id="subjectsList"></div>
     </div>
 
@@ -66,7 +71,7 @@
         <div class="chart-container">
             <canvas id="progressChart"></canvas>
         </div>
-        <p class="chart-hint">Each segment shows how far you've progressed in each subject.</p>
+        <p class="chart-hint">Each segment shows your progress per subject.</p>
     </div>
 
     <!-- ✅ TASKS -->
@@ -104,8 +109,11 @@
             <div class="card-icon">🔔</div>
             <h2>Notifications</h2>
         </div>
-        <p class="notif-info">Enable browser notifications to get study reminders and Pomodoro alerts.</p>
-        <button onclick="requestNotification()">🔔 Enable Notifications</button>
+        <p class="notif-info">
+            Notifications are requested automatically on load. You can also trigger a test notification here.
+            Reminder times set on subjects will fire automatically each day.
+        </p>
+        <button onclick="requestNotification()">🔔 Test Notification</button>
     </div>
 
 </div>

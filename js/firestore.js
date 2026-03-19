@@ -16,6 +16,14 @@ import { updateChart } from "./chart.js";
 
 
 // =======================
+// 📦 SUBJECTS CACHE
+// (kept in sync by listenSubjects — used by checkReminders)
+// =======================
+
+export let subjectsCache = [];
+
+
+// =======================
 // 🔄 REAL-TIME TASKS
 // =======================
 
@@ -23,10 +31,7 @@ let unsubscribeTasks = null;
 
 export function listenTasks() {
     const user = auth.currentUser;
-    if (!user) {
-        console.warn("[listenTasks] no user logged in");
-        return;
-    }
+    if (!user) return;
 
     const list = document.getElementById("taskList");
     if (!list) return;
@@ -37,24 +42,19 @@ export function listenTasks() {
         collection(db, "users", user.uid, "tasks"),
         (snapshot) => {
             list.innerHTML = "";
-
             snapshot.forEach((docSnap) => {
                 const li = document.createElement("li");
                 li.textContent = docSnap.data().text;
-
                 li.onclick = async () => {
                     li.classList.add("done");
                     setTimeout(async () => {
                         await deleteDoc(doc(db, "users", user.uid, "tasks", docSnap.id));
                     }, 400);
                 };
-
                 list.appendChild(li);
             });
         },
-        (error) => {
-            console.error("[listenTasks] error:", error);
-        }
+        (err) => console.error("[listenTasks]", err)
     );
 }
 
@@ -64,11 +64,7 @@ export async function addTask() {
     const input = document.getElementById("taskInput");
     const user  = auth.currentUser;
 
-    if (!user) {
-        alert("Please log in to add tasks.");
-        return;
-    }
-
+    if (!user) { alert("Please log in to add tasks."); return; }
     if (!input || input.value.trim() === "") return;
 
     await addDoc(
@@ -87,19 +83,19 @@ export async function addTask() {
 
 let unsubscribeSubjects = null;
 
+
 // ➕ ADD SUBJECT
 export async function addSubject() {
     const user = auth.currentUser;
-    if (!user) {
-        alert("Please log in to add subjects.");
-        return;
-    }
+    if (!user) { alert("Please log in to add subjects."); return; }
 
-    const nameEl    = document.getElementById("subjectName");
-    const lessonsEl = document.getElementById("subjectLessons");
+    const nameEl     = document.getElementById("subjectName");
+    const lessonsEl  = document.getElementById("subjectLessons");
+    const reminderEl = document.getElementById("subjectReminder");
 
     const name         = nameEl?.value.trim();
     const totalLessons = parseInt(lessonsEl?.value) || 0;
+    const reminderTime = reminderEl?.value || "";       // "HH:MM" or ""
 
     if (!name) {
         alert("Please enter a subject name.");
@@ -111,22 +107,22 @@ export async function addSubject() {
         return;
     }
 
-    console.log("[addSubject] adding:", name, totalLessons);
-
     try {
         await addDoc(collection(db, "users", user.uid, "subjects"), {
             name,
             totalLessons,
-            completedLessons: 0
+            completedLessons: 0,
+            reminderTime
         });
 
         nameEl.value    = "";
         lessonsEl.value = "";
+        if (reminderEl) reminderEl.value = "";
         nameEl.focus();
 
-        console.log("[addSubject] added successfully ✅");
+        console.log("[addSubject] added:", name, totalLessons, reminderTime || "no reminder");
     } catch (err) {
-        console.error("[addSubject] error:", err);
+        console.error("[addSubject]", err);
         alert("Failed to add subject: " + err.message);
     }
 }
@@ -143,26 +139,31 @@ export async function deleteSubject(subjectId) {
         await deleteDoc(doc(db, "users", user.uid, "subjects", subjectId));
         console.log("[deleteSubject] deleted:", subjectId);
     } catch (err) {
-        console.error("[deleteSubject] error:", err);
+        console.error("[deleteSubject]", err);
         alert("Failed to delete subject: " + err.message);
     }
 }
 
 
-// ✅ MARK LESSON COMPLETE
-export async function updateLessonProgress(subjectId) {
+// ✅ COMPLETE LESSON (capped at totalLessons)
+export async function completeLesson(subjectId) {
     const user = auth.currentUser;
     if (!user) return;
 
-    console.log("[updateLessonProgress] subjectId:", subjectId);
+    // Prevent going over the total
+    const cached = subjectsCache.find(s => s.id === subjectId);
+    if (cached && cached.completedLessons >= cached.totalLessons) {
+        console.log("[completeLesson] already at max, skipping");
+        return;
+    }
 
     try {
         await updateDoc(doc(db, "users", user.uid, "subjects", subjectId), {
             completedLessons: increment(1)
         });
-        console.log("[updateLessonProgress] incremented ✅");
+        console.log("[completeLesson] incremented ✅");
     } catch (err) {
-        console.error("[updateLessonProgress] error:", err);
+        console.error("[completeLesson]", err);
         alert("Failed to update lesson: " + err.message);
     }
 }
@@ -171,10 +172,7 @@ export async function updateLessonProgress(subjectId) {
 // 🔄 REAL-TIME SUBJECTS LISTENER
 export function listenSubjects() {
     const user = auth.currentUser;
-    if (!user) {
-        console.warn("[listenSubjects] no user logged in");
-        return;
-    }
+    if (!user) return;
 
     if (unsubscribeSubjects) unsubscribeSubjects();
 
@@ -188,6 +186,9 @@ export function listenSubjects() {
 
             const chartLabels = [];
             const chartValues = [];
+
+            // Keep cache in sync for checkReminders()
+            subjectsCache = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
 
             if (snapshot.empty) {
                 container.innerHTML =
@@ -208,6 +209,11 @@ export function listenSubjects() {
                 chartLabels.push(data.name);
                 chartValues.push(pct);
 
+                // Reminder badge HTML
+                const reminderBadge = data.reminderTime
+                    ? `<span class="reminder-badge">🔔 ${data.reminderTime}</span>`
+                    : "";
+
                 const div = document.createElement("div");
                 div.className = "subject-item";
                 div.innerHTML = `
@@ -216,11 +222,17 @@ export function listenSubjects() {
                             <span class="subject-item-name">${data.name}</span>
                             <button class="btn-delete-subject" onclick="deleteSubject('${id}')" title="Delete subject">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                                    <polyline points="3 6 5 6 21 6"/>
+                                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                                    <path d="M10 11v6"/><path d="M14 11v6"/>
+                                    <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
                                 </svg>
                             </button>
                         </div>
-                        <span class="subject-item-pct ${finished ? 'done' : ''}">${pct}%</span>
+                        <div class="subject-badges">
+                            ${reminderBadge}
+                            <span class="subject-item-pct ${finished ? 'done' : ''}">${pct}%</span>
+                        </div>
                     </div>
                     <div class="subject-progress-row">
                         <progress value="${pct}" max="100"></progress>
@@ -231,9 +243,9 @@ export function listenSubjects() {
                     </div>
                     <button
                         class="btn-complete ${finished ? 'btn-done' : ''}"
-                        onclick="updateLessonProgress('${id}')"
+                        onclick="completeLesson('${id}')"
                         ${finished ? 'disabled' : ''}>
-                        ${finished ? '🎉 All done!' : '✅ Mark Lesson Complete'}
+                        ${finished ? '🎉 All done!' : '✅ Complete Lesson'}
                     </button>
                 `;
                 container.appendChild(div);
@@ -241,8 +253,6 @@ export function listenSubjects() {
 
             updateChart(chartLabels, chartValues);
         },
-        (err) => {
-            console.error("[listenSubjects] error:", err);
-        }
+        (err) => console.error("[listenSubjects]", err)
     );
 }
