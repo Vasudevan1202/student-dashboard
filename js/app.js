@@ -18,6 +18,7 @@ import {
     listenTasks,
     addTask,
     addSubject,
+    deleteSubject,
     listenSubjects,
     updateLessonProgress
 } from "./firestore.js";
@@ -47,6 +48,7 @@ window.logout                = logout;
 
 window.addTask               = addTask;
 window.addSubject            = addSubject;
+window.deleteSubject         = deleteSubject;
 window.updateLessonProgress  = updateLessonProgress;
 
 window.toggleTheme           = toggleTheme;

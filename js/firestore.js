@@ -132,6 +132,23 @@ export async function addSubject() {
 }
 
 
+// 🗑️ DELETE SUBJECT
+export async function deleteSubject(subjectId) {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    if (!confirm("Delete this subject? This cannot be undone.")) return;
+
+    try {
+        await deleteDoc(doc(db, "users", user.uid, "subjects", subjectId));
+        console.log("[deleteSubject] deleted:", subjectId);
+    } catch (err) {
+        console.error("[deleteSubject] error:", err);
+        alert("Failed to delete subject: " + err.message);
+    }
+}
+
+
 // ✅ MARK LESSON COMPLETE
 export async function updateLessonProgress(subjectId) {
     const user = auth.currentUser;
@@ -196,7 +213,10 @@ export function listenSubjects() {
                 div.innerHTML = `
                     <div class="subject-item-header">
                         <span class="subject-item-name">${data.name}</span>
-                        <span class="subject-item-pct ${finished ? 'done' : ''}">${pct}%</span>
+                        <div style="display:flex;align-items:center;gap:6px;">
+                            <span class="subject-item-pct ${finished ? 'done' : ''}">${pct}%</span>
+                            <button class="btn-delete-subject" onclick="deleteSubject('${id}')" title="Delete subject">🗑</button>
+                        </div>
                     </div>
                     <div class="subject-progress-row">
                         <progress value="${pct}" max="100"></progress>

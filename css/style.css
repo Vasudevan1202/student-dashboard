@@ -818,6 +818,33 @@ a:hover {
     font-size: 12px;
 }
 
+/* Delete subject button */
+.btn-delete-subject {
+    width: auto;
+    padding: 3px 7px;
+    margin: 0;
+    font-size: 13px;
+    background: transparent;
+    color: var(--text-faint);
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: var(--transition);
+    line-height: 1;
+}
+
+.btn-delete-subject:hover {
+    background: var(--danger-dim);
+    color: var(--danger);
+    border-color: transparent;
+    box-shadow: none;
+    transform: none;
+}
+
+.btn-delete-subject:active {
+    transform: scale(0.94);
+}
+
 /* Complete lesson button */
 .btn-complete {
     width: 100%;
