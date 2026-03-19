@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Dashboard</title>
+
+<link rel="stylesheet" href="css/style.css">
+
+</head>
+<body>
+
+<h1>📘 Student Dashboard</h1>
+
+<button onclick="toggleTheme()" id="themeBtn">🌙 Dark Mode</button>
+<button onclick="logout()">Logout</button>
+
+<div class="container">
+
+    <!-- 👤 PROFILE -->
+    <div class="card">
+        <h2>Profile</h2>
+        <p id="userName">Loading...</p>
+        <p id="userEmail"></p>
+    </div>
+
+    <!-- ✅ TASKS -->
+    <div class="card">
+        <h2>Tasks</h2>
+        <input type="text" id="taskInput" placeholder="Enter task">
+        <button onclick="addTask()">Add Task</button>
+        <ul id="taskList"></ul>
+    </div>
+
+    <!-- ⏱️ TIMER -->
+    <div class="card">
+        <h2>Pomodoro Timer</h2>
+        <h1 id="timer">25:00</h1>
+        <button onclick="startTimer()">Start</button>
+        <button onclick="resetTimer()">Reset</button>
+    </div>
+
+    <!-- 📅 TIMETABLE -->
+    <div class="card">
+        <h2>Timetable</h2>
+        <textarea id="timetable" placeholder="Enter your schedule..."></textarea>
+        <button onclick="saveTimetable()">Save</button>
+    </div>
+
+    <!-- 📊 PROGRESS -->
+    <div class="card">
+        <h2>Progress</h2>
+
+        <label>Math</label>
+        <progress id="mathBar" max="100"></progress>
+
+        <label>Science</label>
+        <progress id="scienceBar" max="100"></progress>
+    </div>
+
+    <!-- 🔔 NOTIFICATIONS -->
+    <div class="card">
+        <h2>Notifications</h2>
+        <button onclick="requestNotification()">Enable Notifications</button>
+    </div>
+
+</div>
+
+<!-- JS -->
+<script type="module" src="js/app.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login - Student Dashboard</title>
+
+<link rel="stylesheet" href="css/style.css">
+
+<style>
+/* center login card */
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+</style>
+
+</head>
+<body>
+
+<div class="card">
+
+    <h2>Login</h2>
+
+    <input type="email" id="loginUser" placeholder="Email">
+    <input type="password" id="loginPass" placeholder="Password">
+
+    <button onclick="login()">Login</button>
+
+    <button onclick="googleLogin()">Sign in with Google</button>
+
+    <p style="margin-top:10px;">
+        Don't have an account? 
+        <a href="register.html">Register</a>
+    </p>
+
+</div>
+
+<!-- JS -->
+<script type="module" src="js/app.js"></script>
+
+</body>
+</html>
