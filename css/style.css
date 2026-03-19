@@ -1,12 +1,9 @@
-/* ============================================================
-   STUDENT DASHBOARD — STYLESHEET
-   Stack: Vanilla HTML/CSS/JS + Firebase
-   ============================================================ */
 
-/* ── Google Font ── */
+
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-/* ── CSS Variables (Dark mode default) ── */
+
 :root {
     --bg:            #0d1117;
     --surface:       #161b27;
