@@ -17,16 +17,52 @@
     </div>
 
     <!-- Card -->
-    <div class="auth-card">
+    <div class="auth-card reg-card">
         <h2>Get started</h2>
 
+        <!-- Full Name + Nick Name -->
+        <div class="reg-row">
+            <div class="input-group">
+                <label for="regFullName">Full Name <span class="req">*</span></label>
+                <input type="text" id="regFullName" placeholder="e.g. John Smith" autocomplete="name">
+            </div>
+            <div class="input-group">
+                <label for="regNickName">Nick Name <span class="opt">(optional)</span></label>
+                <input type="text" id="regNickName" placeholder="e.g. Johnny">
+            </div>
+        </div>
+
+        <!-- Class + School -->
+        <div class="reg-row">
+            <div class="input-group">
+                <label for="regClass">Class <span class="req">*</span></label>
+                <input type="text" id="regClass" placeholder="e.g. Class 10">
+            </div>
+            <div class="input-group">
+                <label for="regSchool">School <span class="req">*</span></label>
+                <input type="text" id="regSchool" placeholder="e.g. ABC High School">
+            </div>
+        </div>
+
+        <!-- Gender -->
         <div class="input-group">
-            <label for="regUser">Email</label>
+            <label for="regGender">Gender <span class="opt">(optional)</span></label>
+            <select id="regGender">
+                <option value="">Prefer not to say</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+
+        <!-- Email + Password -->
+        <div class="input-group">
+            <label for="regUser">Email <span class="req">*</span></label>
             <input type="email" id="regUser" placeholder="you@example.com" autocomplete="email">
         </div>
 
         <div class="input-group">
-            <label for="regPass">Password</label>
+            <label for="regPass">Password <span class="req">*</span></label>
             <input type="password" id="regPass" placeholder="Min. 6 characters" autocomplete="new-password">
         </div>
 

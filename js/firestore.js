@@ -7,6 +7,8 @@ import {
     addDoc,
     deleteDoc,
     doc,
+    setDoc,
+    getDoc,
     updateDoc,
     onSnapshot,
     increment
@@ -17,10 +19,96 @@ import { updateChart } from "./chart.js";
 
 // =======================
 // 📦 SUBJECTS CACHE
-// (kept in sync by listenSubjects — used by checkReminders)
 // =======================
 
 export let subjectsCache = [];
+
+
+// =======================
+// 👤 PROFILE
+// =======================
+
+// Internal helper — updates all profile DOM elements
+function applyProfileToUI(profile) {
+    const displayName = profile.nickName || profile.fullName || profile.email?.split("@")[0] || "Student";
+    const classSchool = [profile.class, profile.school].filter(Boolean).join(" • ");
+    const initial     = (displayName[0] || "S").toUpperCase();
+
+    const get = (id) => document.getElementById(id);
+
+    if (get("profileAvatar"))       get("profileAvatar").textContent      = initial;
+    if (get("profileDisplayName"))  get("profileDisplayName").textContent  = displayName;
+    if (get("profileClassSchool"))  get("profileClassSchool").textContent  = classSchool;
+    if (get("userEmail"))           get("userEmail").textContent           = profile.email || "";
+    if (get("profileGenderBadge"))  get("profileGenderBadge").textContent  = profile.gender || "";
+
+    // Pre-fill the edit form fields
+    if (get("editFullName"))  get("editFullName").value  = profile.fullName  || "";
+    if (get("editNickName"))  get("editNickName").value  = profile.nickName  || "";
+    if (get("editClass"))     get("editClass").value     = profile.class     || "";
+    if (get("editSchool"))    get("editSchool").value    = profile.school    || "";
+    if (get("editGender"))    get("editGender").value    = profile.gender    || "";
+}
+
+
+// Load profile from Firestore and render it
+export async function loadProfile() {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    try {
+        const snap = await getDoc(doc(db, "users", user.uid, "profile", "data"));
+        const profile = snap.exists()
+            ? { ...snap.data(), email: user.email }
+            : { email: user.email };  // fallback for Google sign-in with no profile yet
+
+        console.log("[loadProfile] data:", profile);
+        applyProfileToUI(profile);
+    } catch (err) {
+        console.error("[loadProfile] error:", err);
+    }
+}
+
+
+// Save edited profile and refresh the UI
+export async function saveProfile() {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const get = (id) => document.getElementById(id);
+
+    const fullName  = get("editFullName")?.value.trim();
+    const nickName  = get("editNickName")?.value.trim() || "";
+    const className = get("editClass")?.value.trim();
+    const school    = get("editSchool")?.value.trim();
+    const gender    = get("editGender")?.value || "";
+
+    if (!fullName)  { alert("Full name is required.");   return; }
+    if (!className) { alert("Class is required.");       return; }
+    if (!school)    { alert("School name is required."); return; }
+
+    try {
+        await setDoc(
+            doc(db, "users", user.uid, "profile", "data"),
+            { fullName, nickName, class: className, school, gender, email: user.email },
+            { merge: true }
+        );
+        console.log("[saveProfile] saved ✅");
+
+        // Refresh view
+        await loadProfile();
+
+        // Close edit form
+        if (typeof window.toggleEditProfile === "function") {
+            window.toggleEditProfile();
+        }
+
+        alert("✅ Profile updated!");
+    } catch (err) {
+        console.error("[saveProfile] error:", err);
+        alert("Failed to save profile: " + err.message);
+    }
+}
 
 
 // =======================
@@ -95,32 +183,19 @@ export async function addSubject() {
 
     const name         = nameEl?.value.trim();
     const totalLessons = parseInt(lessonsEl?.value) || 0;
-    const reminderTime = reminderEl?.value || "";       // "HH:MM" or ""
+    const reminderTime = reminderEl?.value || "";
 
-    if (!name) {
-        alert("Please enter a subject name.");
-        return;
-    }
-
-    if (totalLessons <= 0) {
-        alert("Please enter a valid number of lessons (greater than 0).");
-        return;
-    }
+    if (!name)           { alert("Please enter a subject name."); return; }
+    if (totalLessons<=0) { alert("Please enter a valid number of lessons (greater than 0)."); return; }
 
     try {
         await addDoc(collection(db, "users", user.uid, "subjects"), {
-            name,
-            totalLessons,
-            completedLessons: 0,
-            reminderTime
+            name, totalLessons, completedLessons: 0, reminderTime
         });
-
         nameEl.value    = "";
         lessonsEl.value = "";
         if (reminderEl) reminderEl.value = "";
         nameEl.focus();
-
-        console.log("[addSubject] added:", name, totalLessons, reminderTime || "no reminder");
     } catch (err) {
         console.error("[addSubject]", err);
         alert("Failed to add subject: " + err.message);
@@ -132,12 +207,10 @@ export async function addSubject() {
 export async function deleteSubject(subjectId) {
     const user = auth.currentUser;
     if (!user) return;
-
     if (!confirm("Delete this subject? This cannot be undone.")) return;
 
     try {
         await deleteDoc(doc(db, "users", user.uid, "subjects", subjectId));
-        console.log("[deleteSubject] deleted:", subjectId);
     } catch (err) {
         console.error("[deleteSubject]", err);
         alert("Failed to delete subject: " + err.message);
@@ -150,18 +223,13 @@ export async function completeLesson(subjectId) {
     const user = auth.currentUser;
     if (!user) return;
 
-    // Prevent going over the total
     const cached = subjectsCache.find(s => s.id === subjectId);
-    if (cached && cached.completedLessons >= cached.totalLessons) {
-        console.log("[completeLesson] already at max, skipping");
-        return;
-    }
+    if (cached && cached.completedLessons >= cached.totalLessons) return;
 
     try {
         await updateDoc(doc(db, "users", user.uid, "subjects", subjectId), {
             completedLessons: increment(1)
         });
-        console.log("[completeLesson] incremented ✅");
     } catch (err) {
         console.error("[completeLesson]", err);
         alert("Failed to update lesson: " + err.message);
@@ -183,11 +251,9 @@ export function listenSubjects() {
             if (!container) return;
 
             container.innerHTML = "";
-
             const chartLabels = [];
             const chartValues = [];
 
-            // Keep cache in sync for checkReminders()
             subjectsCache = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
 
             if (snapshot.empty) {
@@ -209,7 +275,6 @@ export function listenSubjects() {
                 chartLabels.push(data.name);
                 chartValues.push(pct);
 
-                // Reminder badge HTML
                 const reminderBadge = data.reminderTime
                     ? `<span class="reminder-badge">🔔 ${data.reminderTime}</span>`
                     : "";
@@ -231,7 +296,7 @@ export function listenSubjects() {
                         </div>
                         <div class="subject-badges">
                             ${reminderBadge}
-                            <span class="subject-item-pct ${finished ? 'done' : ''}">${pct}%</span>
+                            <span class="subject-item-pct ${finished ? "done" : ""}">${pct}%</span>
                         </div>
                     </div>
                     <div class="subject-progress-row">
@@ -239,13 +304,13 @@ export function listenSubjects() {
                     </div>
                     <div class="subject-item-meta">
                         <span>${completed} of ${total} lessons completed</span>
-                        ${finished ? '<span class="badge-done">✓ Complete</span>' : ''}
+                        ${finished ? '<span class="badge-done">✓ Complete</span>' : ""}
                     </div>
                     <button
-                        class="btn-complete ${finished ? 'btn-done' : ''}"
+                        class="btn-complete ${finished ? "btn-done" : ""}"
                         onclick="completeLesson('${id}')"
-                        ${finished ? 'disabled' : ''}>
-                        ${finished ? '🎉 All done!' : '✅ Complete Lesson'}
+                        ${finished ? "disabled" : ""}>
+                        ${finished ? "🎉 All done!" : "✅ Complete Lesson"}
                     </button>
                 `;
                 container.appendChild(div);
