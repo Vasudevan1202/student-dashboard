@@ -38,21 +38,21 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/f
 
 
 // =======================
-// 🌍 GLOBAL FUNCTIONS (HTML access)
+// 🌍 GLOBAL FUNCTIONS (accessible from HTML onclick)
 // =======================
 
-window.login = login;
-window.register = register;
-window.googleLogin = googleLogin;
-window.logout = logout;
+window.login               = login;
+window.register            = register;
+window.googleLogin         = googleLogin;
+window.logout              = logout;
 
-window.addTask = addTask;
-window.saveTimetable = saveTimetable;
-window.saveProgress = saveProgress;
+window.addTask             = addTask;
+window.saveTimetable       = saveTimetable;
+window.saveProgress        = saveProgress;
 
-window.toggleTheme = toggleTheme;
-window.startTimer = startTimer;
-window.resetTimer = resetTimer;
+window.toggleTheme         = toggleTheme;
+window.startTimer          = startTimer;
+window.resetTimer          = resetTimer;
 window.requestNotification = requestNotification;
 
 
@@ -60,13 +60,13 @@ window.requestNotification = requestNotification;
 // 🚀 APP INIT
 // =======================
 
-// theme
+// load saved theme immediately
 loadTheme();
 
-// chart
+// init chart (only runs if canvas#progressChart exists on page)
 initChart();
 
-// auth protection
+// auth protection (redirect if not logged in)
 checkAuth();
 
 
@@ -77,20 +77,22 @@ checkAuth();
 onAuthStateChanged(auth, (user) => {
 
     if (user) {
-        // 👤 show user
+        console.log("[app] user logged in:", user.email);
+
+        // 👤 show user profile
         showUserProfile(user);
 
         // 🔄 real-time tasks
         listenTasks();
 
-        // 📅 timetable
+        // 📅 load timetable
         loadTimetable();
 
-        // 📊 progress (manual override)
+        // 📊 load progress
         loadProgress();
 
     } else {
-        // redirect handled in auth.js
+        console.log("[app] no user — handled by checkAuth()");
     }
 
 });

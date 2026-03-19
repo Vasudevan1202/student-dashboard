@@ -21,7 +21,8 @@ export function loadTheme() {
 
     if (saved === "light") {
         document.body.classList.add("light");
-        document.getElementById("themeBtn").textContent = "☀️ Light Mode";
+        const btn = document.getElementById("themeBtn");
+        if (btn) btn.textContent = "☀️ Light Mode";
     }
 }
 
@@ -40,7 +41,7 @@ export function startTimer() {
         if (time <= 0) {
             clearInterval(interval);
             interval = null;
-            showNotification("Time’s up! ⏰");
+            showNotification("Time's up! ⏰ Take a break.");
         } else {
             time--;
             updateTimer();
@@ -71,7 +72,36 @@ function updateTimer() {
 // =======================
 
 export function requestNotification() {
-    Notification.requestPermission();
+    if (!("Notification" in window)) {
+        alert("This browser does not support desktop notifications.");
+        return;
+    }
+
+    if (Notification.permission === "granted") {
+        // Already granted — show a test notification right away
+        new Notification("🔔 Notifications already enabled!", {
+            body: "Student Dashboard will remind you to study."
+        });
+        return;
+    }
+
+    if (Notification.permission === "denied") {
+        alert("Notifications are blocked. Please enable them in your browser settings (click the lock icon in the address bar).");
+        return;
+    }
+
+    // Request permission
+    Notification.requestPermission().then((permission) => {
+        console.log("[requestNotification] permission:", permission);
+
+        if (permission === "granted") {
+            new Notification("🔔 Notifications enabled!", {
+                body: "Student Dashboard will remind you to study. Good luck! 📚"
+            });
+        } else {
+            alert("Notification permission denied. You can re-enable it in browser settings.");
+        }
+    });
 }
 
 export function showNotification(message = "Study Reminder 📚") {
@@ -86,7 +116,7 @@ export function showNotification(message = "Study Reminder 📚") {
 // =======================
 
 export function showUserProfile(user) {
-    const name = user.displayName || "Student";
+    const name = user.displayName || user.email?.split("@")[0] || "Student";
     const email = user.email;
 
     const nameEl = document.getElementById("userName");

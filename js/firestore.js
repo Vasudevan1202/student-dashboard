@@ -23,9 +23,13 @@ let unsubscribeTasks = null;
 
 export function listenTasks() {
     const user = auth.currentUser;
-    if (!user) return;
+    if (!user) {
+        console.warn("[listenTasks] no user logged in");
+        return;
+    }
 
     const list = document.getElementById("taskList");
+    if (!list) return;
 
     // stop previous listener
     if (unsubscribeTasks) unsubscribeTasks();
@@ -82,6 +86,9 @@ export function listenTasks() {
 
             // update chart
             updateChart(finalMath, finalScience);
+        },
+        (error) => {
+            console.error("[listenTasks] error:", error);
         }
     );
 }
@@ -92,12 +99,17 @@ export async function addTask() {
     const input = document.getElementById("taskInput");
     const user = auth.currentUser;
 
-    if (!user || input.value.trim() === "") return;
+    if (!user) {
+        alert("Please log in to add tasks.");
+        return;
+    }
+
+    if (!input || input.value.trim() === "") return;
 
     await addDoc(
         collection(db, "users", user.uid, "tasks"),
         {
-            text: input.value,
+            text: input.value.trim(),
             created: Date.now()
         }
     );
@@ -113,29 +125,60 @@ export async function addTask() {
 
 export async function saveTimetable() {
     const user = auth.currentUser;
-    if (!user) return;
+    console.log("[saveTimetable] current user:", user?.uid || "none");
 
-    const data = document.getElementById("timetable").value;
+    if (!user) {
+        alert("You must be logged in to save your timetable.");
+        return;
+    }
 
-    await setDoc(
-        doc(db, "users", user.uid, "profile", "data"),
-        { timetable: data },
-        { merge: true }
-    );
+    const timetableEl = document.getElementById("timetable");
+    if (!timetableEl) {
+        console.error("[saveTimetable] timetable element not found");
+        return;
+    }
+
+    const data = timetableEl.value;
+    console.log("[saveTimetable] saving data:", data);
+
+    try {
+        await setDoc(
+            doc(db, "users", user.uid, "profile", "data"),
+            { timetable: data },
+            { merge: true }
+        );
+        console.log("[saveTimetable] saved successfully ✅");
+        alert("✅ Timetable saved!");
+    } catch (err) {
+        console.error("[saveTimetable] failed:", err);
+        alert("❌ Failed to save timetable: " + err.message);
+    }
 }
 
 
 export async function loadTimetable() {
     const user = auth.currentUser;
+    console.log("[loadTimetable] current user:", user?.uid || "none");
+
     if (!user) return;
 
-    const snap = await getDoc(
-        doc(db, "users", user.uid, "profile", "data")
-    );
+    const timetableEl = document.getElementById("timetable");
+    if (!timetableEl) return;
 
-    if (snap.exists()) {
-        document.getElementById("timetable").value =
-            snap.data().timetable || "";
+    try {
+        const snap = await getDoc(
+            doc(db, "users", user.uid, "profile", "data")
+        );
+
+        console.log("[loadTimetable] doc exists:", snap.exists());
+
+        if (snap.exists()) {
+            const saved = snap.data().timetable || "";
+            console.log("[loadTimetable] loaded value:", saved);
+            timetableEl.value = saved;
+        }
+    } catch (err) {
+        console.error("[loadTimetable] error:", err);
     }
 }
 
@@ -168,21 +211,28 @@ export async function loadProgress() {
     const user = auth.currentUser;
     if (!user) return;
 
-    const snap = await getDoc(
-        doc(db, "users", user.uid, "profile", "data")
-    );
+    try {
+        const snap = await getDoc(
+            doc(db, "users", user.uid, "profile", "data")
+        );
 
-    if (snap.exists()) {
-        const data = snap.data().progress;
+        if (snap.exists()) {
+            const data = snap.data().progress;
 
-        if (data) {
-            const math = data.math || 0;
-            const science = data.science || 0;
+            if (data) {
+                const math = data.math || 0;
+                const science = data.science || 0;
 
-            document.getElementById("mathBar").value = math;
-            document.getElementById("scienceBar").value = science;
+                const mathBar = document.getElementById("mathBar");
+                const scienceBar = document.getElementById("scienceBar");
 
-            updateChart(math, science);
+                if (mathBar) mathBar.value = math;
+                if (scienceBar) scienceBar.value = science;
+
+                updateChart(math, science);
+            }
         }
+    } catch (err) {
+        console.error("[loadProgress] error:", err);
     }
 }
