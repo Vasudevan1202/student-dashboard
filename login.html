@@ -1,45 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login - Student Dashboard</title>
-
-<link rel="stylesheet" href="css/style.css">
-
-<style>
-/* center login card */
-body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
-</style>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login — Student Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📘</text></svg>">
 </head>
-<body>
+<body class="auth-page">
 
-<div class="card">
+    <!-- Brand -->
+    <div class="auth-brand">
+        <span class="brand-icon">📘</span>
+        <h1>Student Dashboard</h1>
+        <p>Sign in to your account</p>
+    </div>
 
-    <h2>Login</h2>
+    <!-- Card -->
+    <div class="auth-card">
+        <h2>Welcome back</h2>
 
-    <input type="email" id="loginUser" placeholder="Email">
-    <input type="password" id="loginPass" placeholder="Password">
+        <div class="input-group">
+            <label for="loginUser">Email</label>
+            <input type="email" id="loginUser" placeholder="you@example.com" autocomplete="email">
+        </div>
 
-    <button onclick="login()">Login</button>
+        <div class="input-group">
+            <label for="loginPass">Password</label>
+            <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password">
+        </div>
 
-    <button onclick="googleLogin()">Sign in with Google</button>
+        <button onclick="login()" style="margin-top:6px;">Sign In</button>
 
-    <p style="margin-top:10px;">
-        Don't have an account? 
-        <a href="register.html">Register</a>
-    </p>
+        <div class="auth-divider"><span>or continue with</span></div>
 
-</div>
+        <button class="btn-google" onclick="googleLogin()">
+            <span class="g-icon">🌐</span> Sign in with Google
+        </button>
 
-<!-- JS -->
-<script type="module" src="js/app.js"></script>
+        <div class="auth-footer">
+            Don't have an account? <a href="register.html">Create one</a>
+        </div>
+    </div>
 
+    <script type="module" src="js/app.js"></script>
 </body>
 </html>

@@ -1,137 +1,694 @@
-/* RESET */
-* {
+/* ============================================================
+   STUDENT DASHBOARD — STYLESHEET
+   Stack: Vanilla HTML/CSS/JS + Firebase
+   ============================================================ */
+
+/* ── Google Font ── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* ── CSS Variables (Dark mode default) ── */
+:root {
+    --bg:            #0d1117;
+    --surface:       #161b27;
+    --surface-2:     #1e2535;
+    --surface-3:     #252d40;
+    --border:        #2a3248;
+    --text:          #e6eaf7;
+    --text-muted:    #7b85aa;
+    --text-faint:    #4a5270;
+    --primary:       #00c9d4;
+    --primary-hover: #00adb7;
+    --primary-dim:   rgba(0, 201, 212, 0.12);
+    --primary-glow:  0 0 18px rgba(0, 201, 212, 0.25);
+    --danger:        #ff5c5c;
+    --danger-dim:    rgba(255, 92, 92, 0.12);
+    --success:       #3dd68c;
+    --google-bg:     #2a2f45;
+    --google-hover:  #323854;
+    --radius-lg:     18px;
+    --radius-md:     12px;
+    --radius-sm:     8px;
+    --shadow-card:   0 8px 32px rgba(0, 0, 0, 0.45);
+    --shadow-btn:    0 4px 14px rgba(0, 201, 212, 0.3);
+    --transition:    0.22s ease;
+    --header-h:      60px;
+}
+
+/* ── Light Mode ── */
+body.light {
+    --bg:            #f0f4ff;
+    --surface:       #ffffff;
+    --surface-2:     #f5f7fe;
+    --surface-3:     #eaeef9;
+    --border:        #d8dff2;
+    --text:          #1a1f36;
+    --text-muted:    #5b6589;
+    --text-faint:    #9ba3c0;
+    --primary:       #0099a8;
+    --primary-hover: #00808e;
+    --primary-dim:   rgba(0, 153, 168, 0.1);
+    --primary-glow:  0 0 18px rgba(0, 153, 168, 0.2);
+    --danger:        #e53935;
+    --danger-dim:    rgba(229, 57, 53, 0.1);
+    --success:       #2e9c68;
+    --google-bg:     #f0f4ff;
+    --google-hover:  #e3e9f9;
+    --shadow-card:   0 4px 24px rgba(26, 31, 54, 0.08);
+    --shadow-btn:    0 4px 14px rgba(0, 153, 168, 0.25);
+}
+
+/* ── Reset ── */
+*, *::before, *::after {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-/* BODY */
+/* ── Base ── */
 body {
-    font-family: 'Segoe UI', sans-serif;
-    background: #121212;
-    color: white;
-    transition: all 0.3s ease;
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.55;
+    transition: background var(--transition), color var(--transition);
+    min-height: 100vh;
 }
 
-/* LIGHT MODE */
-body.light {
-    background: #f5f5f5;
-    color: #111;
+/* ============================================================
+   HEADER
+   ============================================================ */
+
+.app-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    height: var(--header-h);
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    backdrop-filter: blur(10px);
 }
 
-body.light .card {
-    background: #ffffff;
-    color: #111;
+.header-brand {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: -0.3px;
 }
 
-/* TITLE */
-h1 {
-    text-align: center;
-    margin: 15px 0;
+.header-brand span {
+    font-size: 22px;
 }
 
-/* CONTAINER */
-.container {
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-icon {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    border-radius: var(--radius-sm);
+    padding: 7px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    white-space: nowrap;
+    width: auto;
+    margin: 0;
+}
+
+.btn-icon:hover {
+    background: var(--surface-3);
+    color: var(--text);
+    transform: none;
+    box-shadow: none;
+}
+
+.btn-icon:active {
+    transform: scale(0.97);
+}
+
+/* ============================================================
+   AUTH PAGES (login / register)
+   ============================================================ */
+
+.auth-page {
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 10px;
+    justify-content: center;
+    padding: 24px 16px;
 }
 
-/* CARD */
-.card {
-    background: #1e1e1e;
-    padding: 20px;
-    border-radius: 16px;
-    width: 95%;
-    max-width: 420px;
-    margin-bottom: 15px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.3);
-    animation: fadeIn 0.4s ease;
+.auth-brand {
+    text-align: center;
+    margin-bottom: 28px;
 }
 
-/* INPUTS */
-input, textarea {
-    width: 100%;
-    padding: 10px;
-    margin: 10px 0;
-    border-radius: 8px;
-    border: none;
-    outline: none;
-    font-size: 14px;
-}
-
-/* BUTTONS */
-button {
-    width: 100%;
-    padding: 10px;
-    margin-top: 6px;
-    border: none;
-    border-radius: 8px;
-    background: #00adb5;
-    color: white;
-    cursor: pointer;
-    font-size: 14px;
-    transition: 0.3s;
-}
-
-button:hover {
-    background: #007b80;
-    transform: translateY(-1px);
-}
-
-button:active {
-    transform: scale(0.96);
-}
-
-/* TASK LIST */
-ul {
-    padding: 0;
-}
-
-li {
-    list-style: none;
-    background: #333;
-    padding: 10px;
-    margin: 6px 0;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-li:hover {
-    background: #444;
-}
-
-/* PROGRESS */
-progress {
-    width: 100%;
-    height: 14px;
-    margin-bottom: 10px;
-}
-
-/* TOP BUTTONS */
-#themeBtn, button[onclick="logout()"] {
-    max-width: 200px;
+.auth-brand .brand-icon {
+    font-size: 42px;
     display: block;
-    margin: 5px auto;
+    margin-bottom: 8px;
 }
 
-/* PROFILE TEXT */
+.auth-brand h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.4px;
+}
+
+.auth-brand p {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+.auth-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 32px 28px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: var(--shadow-card);
+    animation: slideUp 0.35s ease;
+}
+
+.auth-card h2 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: var(--text);
+}
+
+.input-group {
+    margin-bottom: 14px;
+}
+
+.input-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+}
+
+.auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 16px 0;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+}
+
+.auth-divider span {
+    font-size: 12px;
+    color: var(--text-faint);
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.auth-footer {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.auth-footer a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.auth-footer a:hover {
+    text-decoration: underline;
+}
+
+/* ============================================================
+   DASHBOARD LAYOUT
+   ============================================================ */
+
+.page-body {
+    padding: 20px 16px 40px;
+    max-width: 460px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+
+.card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 22px 20px;
+    box-shadow: var(--shadow-card);
+    animation: slideUp 0.35s ease both;
+    transition: border-color var(--transition);
+}
+
+.card:hover {
+    border-color: var(--primary-dim);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.card-icon {
+    font-size: 20px;
+    width: 36px;
+    height: 36px;
+    background: var(--primary-dim);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.card-header h2 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.2px;
+}
+
+/* Stagger animation */
+.card:nth-child(1) { animation-delay: 0.05s; }
+.card:nth-child(2) { animation-delay: 0.10s; }
+.card:nth-child(3) { animation-delay: 0.15s; }
+.card:nth-child(4) { animation-delay: 0.20s; }
+.card:nth-child(5) { animation-delay: 0.25s; }
+.card:nth-child(6) { animation-delay: 0.30s; }
+
+/* ============================================================
+   PROFILE CARD
+   ============================================================ */
+
+.profile-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.profile-avatar {
+    width: 46px;
+    height: 46px;
+    background: linear-gradient(135deg, var(--primary), #005f88);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.profile-info {
+    flex: 1;
+    min-width: 0;
+}
+
 #userName {
-    font-weight: bold;
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 #userEmail {
     font-size: 13px;
-    opacity: 0.7;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 2px;
 }
 
-/* ANIMATIONS */
-@keyframes fadeIn {
+/* ============================================================
+   INPUTS & TEXTAREA
+   ============================================================ */
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea {
+    width: 100%;
+    padding: 11px 14px;
+    background: var(--surface-2);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-md);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    transition: border-color var(--transition), background var(--transition);
+    margin: 0;
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: var(--text-faint);
+}
+
+input:focus,
+textarea:focus {
+    border-color: var(--primary);
+    background: var(--surface);
+}
+
+textarea {
+    resize: vertical;
+    min-height: 110px;
+}
+
+/* Task input row */
+.task-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.task-row input {
+    flex: 1;
+}
+
+.task-row .btn-sm {
+    flex-shrink: 0;
+    width: auto;
+    padding: 11px 16px;
+    margin: 0;
+    white-space: nowrap;
+    font-size: 13px;
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+
+button {
+    width: 100%;
+    padding: 12px 16px;
+    border: none;
+    border-radius: var(--radius-md);
+    background: var(--primary);
+    color: #fff;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+    margin-top: 10px;
+    letter-spacing: 0.1px;
+}
+
+button:hover {
+    background: var(--primary-hover);
+    box-shadow: var(--shadow-btn);
+    transform: translateY(-1px);
+}
+
+button:active {
+    transform: scale(0.97);
+    box-shadow: none;
+}
+
+/* Google button */
+.btn-google {
+    background: var(--google-bg);
+    color: var(--text);
+    border: 1.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+}
+
+.btn-google:hover {
+    background: var(--google-hover);
+    box-shadow: none;
+}
+
+.btn-google .g-icon {
+    font-size: 16px;
+}
+
+/* Secondary / outline button */
+.btn-secondary {
+    background: var(--surface-2);
+    color: var(--text);
+    border: 1.5px solid var(--border);
+}
+
+.btn-secondary:hover {
+    background: var(--surface-3);
+    box-shadow: none;
+}
+
+/* Danger button */
+.btn-danger {
+    background: var(--danger-dim);
+    color: var(--danger);
+    border: 1.5px solid transparent;
+}
+
+.btn-danger:hover {
+    background: var(--danger);
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(255, 92, 92, 0.3);
+}
+
+/* ============================================================
+   TASK LIST
+   ============================================================ */
+
+#taskList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+#taskList li {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    padding: 11px 14px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+}
+
+#taskList li::before {
+    content: '○';
+    font-size: 14px;
+    color: var(--text-faint);
+    flex-shrink: 0;
+    transition: var(--transition);
+}
+
+#taskList li:hover {
+    background: var(--surface-3);
+    border-color: var(--primary);
+}
+
+#taskList li:hover::before {
+    content: '✓';
+    color: var(--primary);
+}
+
+#taskList li.done {
+    opacity: 0.5;
+    text-decoration: line-through;
+    color: var(--text-muted);
+}
+
+#taskList li.done::before {
+    content: '✓';
+    color: var(--success);
+}
+
+#taskList:empty::after {
+    content: 'No tasks yet. Add one above!';
+    display: block;
+    color: var(--text-faint);
+    font-size: 13px;
+    text-align: center;
+    padding: 16px 0 4px;
+}
+
+/* ============================================================
+   POMODORO TIMER
+   ============================================================ */
+
+.timer-display {
+    text-align: center;
+    padding: 18px 0 14px;
+}
+
+.timer-display #timer {
+    font-size: 52px;
+    font-weight: 700;
+    letter-spacing: -2px;
+    color: var(--primary);
+    display: block;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+
+.timer-label {
+    font-size: 12px;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 6px;
+}
+
+.timer-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.timer-buttons button {
+    flex: 1;
+    margin-top: 0;
+}
+
+.timer-buttons .btn-secondary {
+    flex: 0 0 auto;
+    width: 48px;
+    padding: 12px;
+}
+
+/* ============================================================
+   TIMETABLE
+   ============================================================ */
+
+.timetable-note {
+    font-size: 12px;
+    color: var(--text-faint);
+    margin-top: 8px;
+}
+
+/* ============================================================
+   PROGRESS
+   ============================================================ */
+
+.progress-item {
+    margin-bottom: 14px;
+}
+
+.progress-item:last-of-type {
+    margin-bottom: 0;
+}
+
+.progress-label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.progress-label-row span {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+.progress-label-row .pct {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--primary);
+}
+
+progress {
+    width: 100%;
+    height: 8px;
+    border-radius: 99px;
+    border: none;
+    background: var(--surface-2);
+    overflow: hidden;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+progress::-webkit-progress-bar {
+    background: var(--surface-2);
+    border-radius: 99px;
+}
+
+progress::-webkit-progress-value {
+    background: linear-gradient(90deg, var(--primary), #00e5d0);
+    border-radius: 99px;
+    transition: width 0.6s ease;
+}
+
+progress::-moz-progress-bar {
+    background: linear-gradient(90deg, var(--primary), #00e5d0);
+    border-radius: 99px;
+}
+
+.chart-wrap {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+}
+
+/* ============================================================
+   NOTIFICATIONS CARD
+   ============================================================ */
+
+.notif-info {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    line-height: 1.5;
+}
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+
+@keyframes slideUp {
     from {
         opacity: 0;
-        transform: translateY(10px);
+        transform: translateY(16px);
     }
     to {
         opacity: 1;
@@ -139,13 +696,42 @@ progress {
     }
 }
 
-/* MOBILE OPTIMIZATION */
-@media (max-width: 480px) {
-    h1 {
-        font-size: 20px;
-    }
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
 
-    .card {
-        padding: 15px;
-    }
+/* ============================================================
+   LINKS
+   ============================================================ */
+
+a {
+    color: var(--primary);
+    text-decoration: none;
+    transition: opacity var(--transition);
+}
+
+a:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+}
+
+/* ============================================================
+   SCROLLBAR
+   ============================================================ */
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-faint); }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 480px) {
+    .page-body { padding: 14px 12px 36px; gap: 12px; }
+    .auth-card  { padding: 24px 18px; }
+    .timer-display #timer { font-size: 44px; }
+    .header-brand { font-size: 15px; }
 }
